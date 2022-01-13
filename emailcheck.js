@@ -260,7 +260,8 @@ const specialCharCheck = () =>  {
                   errorDetail.classList.add('errornote')
                   errorDetail.innerText = `Replace with &#${char.charCodeAt(0)};`
                   origText.classList.add('origtext')
-                  origText.innerHTML = `<u>Reference text:</u> ${newCode}`
+                  // origText.innerHTML = `<u>Reference text:</u> ${newCode}`
+                  origText.innerHTML = `<u>Reference text:</u> ${newCode.length < 250 ? newCode : newCode.slice(0,250) + '...continued...'}`
     
                   errorsFound.appendChild(errorDiv)
                   

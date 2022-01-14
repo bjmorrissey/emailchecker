@@ -7,6 +7,16 @@ const errorsFound = document.querySelector('.errorsFound')
 const languageCheck = document.querySelector('.languagecheck')
 const mainpresentation = document.querySelector('.mainTag')
 const imageCheck = document.querySelector('.imageCheck');
+const presentationarea = document.querySelector('.presentationcheck')
+
+
+//Checkboxes to control functions
+const cblanguage = document.getElementById('language')
+const cbrole = document.getElementById('role-main')
+const cbspecialchars = document.getElementById('specialchars')
+const cbimagecheck = document.getElementById('imagecheck')
+const cbpresentationcheck= document.getElementById('presentationcheck')
+
 
 let preInput = "";
 let newString = "";
@@ -14,20 +24,25 @@ let ftSz = 8;
 
 emailBtn.addEventListener("click", (e) => {
   e.preventDefault();
-  // mainpresentation.innerHTML = "";
-  errorsFound.innerHTML = ""
-  langCharCheck()
-  specialCharCheck()
-  imagePath();
+  runChecks();
 });
+
+const runChecks = () => {
+  if (cblanguage.checked) {langCharCheck()} else { languageCheck.style.display = 'none'; }
+  if (cbrole.checked) {roleCheck()} else { mainpresentation.style.display="none"; }
+  if (cbspecialchars.checked) {specialCharCheck()} else { errorsFound.style.display = "none"; }
+  if (cbimagecheck.checked) {imagePath()} else { imageCheck.style.display = 'none'; }
+  if (cbpresentationcheck.checked) {tablePresentation()} else  { presentationarea.style.display = 'none'; }
+}
+
 
 //Check for language declaration, role="main" in email
 const langCharCheck = () => {
   let htmlOrgArray = inputText.value.split("\n")
   let mainLines = [];
   let langDesc = "";
-  let mainTagCheck = false;
-  let mainTag = "";
+  // let mainTagCheck = false;
+  // let mainTag = "";
 
 
   htmlOrgArray.forEach(line => {
@@ -46,8 +61,31 @@ const langCharCheck = () => {
       }
       
     }
+  })
+
+  languageCheck.style.display = 'inherit';
+  const langdetail = document.createElement('p')
+  langdetail.classList.add('langdetail')
+  langdetail.innerHTML = langDesc
+  languageCheck.innerHTML= "<h1>HTML Language Declared</h1>"
+  languageCheck.appendChild(langdetail)
+ 
+
+}
+
+//Check for role="main" in email
+const roleCheck = () => {
+  let htmlOrgArray = inputText.value.split("\n")
+  let mainLines = [];
+  let langDesc = "";
+  let mainTagCheck = false;
+  let mainTag = "";
+
+
+ 
     //Checking for role='main' tag
-    
+    htmlOrgArray.forEach(line => {
+  
     if (line.includes('role="main"')) {
       if (!mainTagCheck) {
         mainLines.push(htmlOrgArray.indexOf(line)+1)
@@ -59,18 +97,12 @@ const langCharCheck = () => {
       }
     } 
   })
+  
 
-  languageCheck.style.display = 'inherit';
   mainpresentation.style.display="inherit";
-  const langdetail = document.createElement('p')
   const presdetail = document.createElement('p')
-  langdetail.classList.add('langdetail')
-  langdetail.innerHTML = langDesc
+
   presdetail.innerHTML = mainTag;
-
-  languageCheck.innerHTML= "<h1>HTML Language Declared</h1>"
-
-  languageCheck.appendChild(langdetail)
   mainpresentation.innerHTML = '<h1 class="heading">Role="main"</h1>'
   mainpresentation.appendChild(presdetail);
 
@@ -84,6 +116,7 @@ const specialCharCheck = () =>  {
     let bodyEnd = 1;
     let forbiddenChars = ['†', '&', 'í', 'á', 'à', 'é', 'è', 'ó', 'ò', 'ú', 'ñ', '*', '‡', '©', '®', '¡', '¿', '§', '–', '—', '™' ]
 
+    errorsFound.innerHTML = ""
 
     //Discover where body tags are in the document
     htmlOrgArray.forEach((line, i) => {
@@ -282,9 +315,15 @@ const specialCharCheck = () =>  {
 //Check <img> tag 
 const imagePath = () => {
   let htmlOrgArray = inputText.value.split("\n")
-  
+  imageCheck.innerHTML = ""
+  imageCheck.innerHTML = "<h1>Image Check</h1>"
+  let imgSlice = "";
 
-  htmlOrgArray.forEach((line, i) => {
+
+  for (let i = 0; i < htmlOrgArray.length; i++) {
+  // htmlOrgArray.forEach((line, i) => {
+    let line = htmlOrgArray[i]
+
     if (line.includes('<img')) {
       let imgIndx = line.indexOf('<img')
       let imgEndIndx = 0;
@@ -294,18 +333,31 @@ const imagePath = () => {
       let alt = false;
       let altText = "";
       let closingTag = false;
+      imgSlice = line.slice(imgIndx)
       
-      for (let i = imgIndx; i < line.length; i++) {
+      // console.log(imgSlice)
+      //Check for closing tag on same line
+      if (!imgSlice.includes('>')) {
+        console.log('This image tag does not close on the same line')
+        
+        imgSlice += htmlOrgArray[i+1].trim()
+        console.log(imgSlice)
+        // console.log(i)
+        // console.log(htmlOrgArray[i+1].trim())
+      }
+
+      for (let i = 0; i < imgSlice.length; i++) {
         let currentLetter = line[i]
-        if (line[i] === '>') {
+        if (imgSlice[i] === '>') {
           imgEndIndx = i+1;
+          // console.log(imgEndIndx)
           break;
           
         }
       }
-      let imgTag = line.slice(imgIndx, imgEndIndx)
+      let imgTag = imgSlice.slice(0, imgEndIndx)
       lineNum = i + 1; 
-      console.log(`Line ${i+1}: ${imgTag}`)
+      // console.log(`Line ${i+1}: ${imgTag}`)
 
       //Check for alt
       if (imgTag.includes('alt=')) {
@@ -321,12 +373,12 @@ const imagePath = () => {
         }
 
           altText = imgTag.slice(altIndx, altEndIndx)
-          console.log(altText)
+          // console.log(altText)
 
         
       } else {
         alt = false;
-        console.log("alt is NOT included 😤")
+        // console.log("alt is NOT included 😤")
       }
 
       //Check for closing tag 
@@ -337,13 +389,14 @@ const imagePath = () => {
       }
       
       //CHECK for img src to not be /images
-      if (imgTag.includes('src="images"' || "src='images'")) {
+      if (imgTag.includes('src="images' || "src='images")) {
         console.log('Img Source goes to Image folder!!😤')
         imageFolder = false;
         
       } else {
-        console.log('Img Source NOT going to Image folder!!🥰')
+        // console.log('Img Source NOT going to Image folder!!🥰')
         imageFolder = true;
+      }
 
         let srcIndx = imgTag.indexOf('src="')+5
         let srcEndIndx = 0;
@@ -357,14 +410,14 @@ const imagePath = () => {
         }
 
           imageURL = imgTag.slice(srcIndx, srcEndIndx)
-          console.log(imageURL)
+          // console.log(imageURL)
 
 
 
-      }
 
       imageCheck.style.display = 'block';
-
+      
+  
   const imgDiv = document.createElement('div');
   const header = document.createElement('h3');
   const imgdeets = document.createElement('div');
@@ -372,20 +425,23 @@ const imagePath = () => {
   const imagebreakdown = document.createElement('div');
 
 
+  
   header.classList.add("subhead")
   imgDiv.classList.add('indiverror');
   imgdeets.classList.add('imgdetails');
   imagepic.classList.add('imgpic');
   imagebreakdown.classList.add('imgbreakdown');
+
   
     //Where line code will go
+    
     header.innerHTML = `Line ${lineNum}`
-    imagepic.innerHTML = `<img class="imgpreview" src=${imageURL} />`
+    imagepic.innerHTML = `${imageURL.includes('images/') ? `<b>Image not linked to server! </b>` : `<a href="${imageURL}" target="_blank"><img class="imgpreview" src=${imageURL} /></a>` }`
     imagebreakdown.innerHTML = `<u>Source:</u> ${imageFolder ? '✅' : "❌"} ${imageURL} <br /> <u>Alt:</u> ${alt ? `✅ "${altText}"` : "❌  No alt Text!" } <br /> <u>ClosingTag:</u> ${closingTag ? '✅ - has "/>"' : '❌ - does not have "/>"'}`
     //Where picture/no picture will go
     
-
     imageCheck.appendChild(imgDiv)
+
     
     imgDiv.appendChild(header)
     imgDiv.appendChild(imgdeets)
@@ -394,12 +450,115 @@ const imagePath = () => {
 
     }
   
-  })
+  }
   
 
   
 
 }
+
+
+// Check for role='presentation' in tables
+
+const tablePresentation = () => {
+  let htmlOrgArray = inputText.value.split("\n")
+  presentationarea.innerHTML = "";
+  presentationarea.innerHTML = `<h1>role="presentation" in Tables Check</h1>`
+  let imgSlice = "";
+
+
+  for (let i = 0; i < htmlOrgArray.length; i++) {
+  // htmlOrgArray.forEach((line, i) => {
+    let line = htmlOrgArray[i]
+
+    if (line.includes('<table')) {
+      let tableIndx = line.indexOf('<table')
+      let tableEndIndx = 0;
+      let lineNum = 0; 
+      let tableFolder = false;
+      let tableURL = "";
+      let roleCheck = false;
+      let closingTag = false;
+      tableSlice = line.slice(tableIndx)
+      
+      console.log(tableSlice)
+      //Check for closing tag on same line
+      if (!tableSlice.includes('>')) {
+        console.log('This table tag does not close on the same line')
+        
+        imgSlice += htmlOrgArray[i+1].trim()
+        // console.log(tableSlice)
+        
+      }
+
+      for (let i = 0; i < tableSlice.length; i++) {
+        let currentLetter = line[i]
+        if (tableSlice[i] === '>') {
+          tableEndIndx = i+1;
+          break;
+          
+        }
+      }
+      let tableTag = tableSlice.slice(0, tableEndIndx)
+      lineNum = i + 1; 
+      console.log(`Line ${i+1}: ${tableTag}`)
+
+      //Check for alt
+      if (tableTag.includes('role="presentation"' || "role='presentation'")) {
+        roleCheck = true;
+      } else {
+        roleCheck = false;
+      }
+
+      //Check for closing tag 
+      if (tableTag.includes('>')) {
+        closingTag = true;
+      } else {
+        closingTag = false;
+      }
+      
+    
+
+    presentationarea.style.display = 'block';
+      
+  
+  const tableDiv = document.createElement('div');
+  const header = document.createElement('h3');
+  const tabledeets = document.createElement('p');
+  const tablecode = document.createElement('p')
+
+
+  
+  header.classList.add("subhead")
+  tableDiv.classList.add('indiverror');
+  tabledeets.classList.add('imgdetails');
+  
+  
+  
+    //Where line code will go
+    console.log(tableTag)
+    header.innerHTML = `Line ${lineNum}`
+    tabledeets.innerHTML = `${roleCheck ? `✅ Presentation found` : `❌ Presentation NOT found`}`
+    tablecode.innerText = `Code: ${tableTag}`
+  
+    //Where picture/no picture will go
+    
+    presentationarea.appendChild(tableDiv)
+
+    
+    tableDiv.appendChild(header)
+    tableDiv.appendChild(tabledeets)
+    tableDiv.appendChild(tablecode)
+    
+    }
+  
+  }
+  
+
+  
+
+}
+
 
 
 

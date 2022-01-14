@@ -1,3 +1,5 @@
+//Updated 1/14/22 11:40am CST
+
 const emailBtn = document.getElementById("emailButton");
 const inputText = document.querySelector(".htmlinput");
 const calcedArea = document.querySelector(".calculatedArea");

@@ -291,7 +291,7 @@ const specialCharCheck = () =>  {
                   for (let i = finderIndex; i < obj.value.length; i++) {
                     if (obj.value[i] === char) {
 
-                      columnNumber = i
+                      columnNumber = i + spaceCount - tabCount
                     }
                   }
                   // columnNumber = obj.value.indexOf(finder)+charInWordIndx

@@ -262,50 +262,72 @@ const specialCharCheck = () =>  {
             errorCount++
 
 
-     
               //Searching for common HTML code, etc
               if (word.includes('&#') || word.includes('&amp;') || word.includes('&nbsp;') || word.includes('&copy;') || word.includes('&dagger;') || word.includes('&ndash;') || word.includes('&ndash;')) {
                 return;
               } else {
 
-                let charInWordIndx = word.indexOf(char)
-                console.log(charInWordIndx, word)
-
-                if (obj.value.includes(word)) {
-                  columnNumber = obj.value.indexOf(word)+charInWordIndx
-                }
                 
 
-                  // console.log(obj.Line, word)
+                let charInWordIndx = word.indexOf(char)
+                console.log(charInWordIndx, word)
+                let finder = word[0]
 
-                  
-                  errorsFound.style.display = 'inherit';
-                  
-                  
-                  const errorDiv = document.createElement('div');
-                  const header = document.createElement('h3');
-                  const errorDetail = document.createElement('p');
-                  const origText = document.createElement('p');
-                  
-                  errorDiv.classList.add('indiverror')
-                  
-                  header.classList.add("subhead")
-                  
-                  header.innerHTML = `❌ Forbidden Character: <span style="font-size: 28px;">${char}</span><span style="color: red; font-size: 20px;"> Line ${obj.Line}</span> column ${columnNumber+1}`
-                  errorDetail.classList.add('errornote')
-                  errorDetail.innerText = `Replace with &#${char.charCodeAt(0)};`
-                  origText.classList.add('origtext')
-                  // origText.innerHTML = `<u>Reference text:</u> ${newCode}`
-                  origText.innerHTML = `<u>Reference text:</u> ${newCode.length < 250 ? newCode : newCode.slice(0,250) + '...continued...'}`
-    
-                  errorsFound.appendChild(errorDiv)
-                  
-                  errorDiv.appendChild(header)
-                  errorDiv.appendChild(errorDetail)
-                  errorDiv.appendChild(origText)
+                for (let z = 1; z < word.length; z++) {
+                  if (obj.value.includes(finder + (word[z]))) {
+                    finder += word[z]
+                    
+                  } else {
+                    break;
+                  }
+                }
+
+            
+
+                if (obj.value.includes(finder)) {
+                  let finderIndex = obj.value.indexOf(finder)+finder.length-1
+                  console.log(finderIndex)
+
+                  for (let i = finderIndex; i < obj.value.length; i++) {
+                    if (obj.value[i] === char) {
+
+                      columnNumber = i
+                    }
+                  }
+                  // columnNumber = obj.value.indexOf(finder)+charInWordIndx
+                }
               }
+
+                // console.log(obj.Line, word)
+
+                
+              errorsFound.style.display = 'inherit';
               
+              
+              const errorDiv = document.createElement('div');
+              const header = document.createElement('h3');
+              const errorDetail = document.createElement('p');
+              const origText = document.createElement('p');
+              
+              errorDiv.classList.add('indiverror')
+              
+              header.classList.add("subhead")
+              
+              header.innerHTML = `❌ Forbidden Character: <span style="font-size: 28px;">${char}</span><span style="color: red; font-size: 20px;"> Line ${obj.Line}</span> column ${columnNumber+1}`
+              errorDetail.classList.add('errornote')
+              errorDetail.innerText = `Replace with &#${char.charCodeAt(0)};`
+              origText.classList.add('origtext')
+              // origText.innerHTML = `<u>Reference text:</u> ${newCode}`
+              origText.innerHTML = `<u>Reference text:</u> ${newCode.length < 250 ? newCode : newCode.slice(0,250) + '...continued...'}`
+
+              errorsFound.appendChild(errorDiv)
+              
+              errorDiv.appendChild(header)
+              errorDiv.appendChild(errorDetail)
+              errorDiv.appendChild(origText)
           }
+              
+          
         })
       })
 
@@ -338,12 +360,19 @@ const imagePath = () => {
       imgSlice = line.slice(imgIndx)
       
       // console.log(imgSlice)
+
       //Check for closing tag on same line
       if (!imgSlice.includes('>')) {
         console.log('This image tag does not close on the same line')
-        
-        imgSlice += htmlOrgArray[i+1].trim()
-        console.log(imgSlice)
+        let count = 1
+
+        //HOW TO ADD TO TAG UNTIL IT CLOSES!!! 😀😀😀
+        while (!imgSlice.includes('>')) {
+          imgSlice += ` ${htmlOrgArray[i+ count].trim()}`
+          console.log(imgSlice)
+          count++;
+
+        }
         // console.log(i)
         // console.log(htmlOrgArray[i+1].trim())
       }
